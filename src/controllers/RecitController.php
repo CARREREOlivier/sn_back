@@ -2,6 +2,8 @@
 
 namespace RecitController;
 
+use RecitRepository\RecitRepository;
+
 class RecitController
 {
     private $repository;
