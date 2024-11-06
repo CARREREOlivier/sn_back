@@ -1,26 +1,27 @@
 <?php
+declare(strict_types = 1);
 
-use RecitController\RecitController;
+require_once __DIR__ . '/../src/controllers/RecitController.php';
 
+$requestUri = $_SERVER['REQUEST_URI'];
+$requestMethod = $_SERVER['REQUEST_METHOD'];
 $controller = new RecitController();
 
-switch ($_SERVER['REQUEST_METHOD']) {
-    case 'GET':
-        if (isset($_GET['id'])) {
-            $controller->getRecit($_GET['id']);
-        } else {
-            $controller->getAllRecits();
-        }
-        break;
-    case 'POST':
-        $data = json_decode(file_get_contents("php://input"), true);
-        $controller->createRecit($data);
-        break;
-    case 'PUT':
-        parse_str(file_get_contents("php://input"), $data);
-        $controller->updateRecit($_GET['id'], $data);
-        break;
-    case 'DELETE':
-        $controller->deleteRecit($_GET['id']);
-        break;
+if ($requestUri === '/recits' && $requestMethod === 'GET') {
+    $controller->displayAllRecits();
+} elseif (preg_match('#^/recits/([a-zA-Z0-9_-]+)$#', $requestUri, $matches) && $requestMethod === 'GET') {
+    $slug = $matches[1];
+    $controller->displayRecitBySlug($slug);
+} elseif ($requestUri === '/recits/create' && $requestMethod === 'POST') {
+    $controller->createRecit();
+} elseif (preg_match('#^/recits/([a-zA-Z0-9_-]+)$#', $requestUri, $matches) && $requestMethod === 'PUT') {
+    $slug = $matches[1];
+    $controller->updateRecit($slug);
+} elseif (preg_match('#^/recits/delete/([a-zA-Z0-9_-]+)$#', $requestUri, $matches) && $requestMethod === 'DELETE') {
+    $slug = $matches[1];
+    $controller->deleteRecit($slug);
+} else {
+    echo json_encode(["status" => "error", "message" => "Route not found"]);
+    http_response_code(404);
 }
+?>

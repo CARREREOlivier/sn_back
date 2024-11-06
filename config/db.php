@@ -8,14 +8,15 @@ class Database {
     private string $db_name;
     private string $username;
     private string $password;
-    public ?PDO $conn = null;
+    private ?PDO $conn = null;
 
     public function __construct() {
         $this->loadConfig();
     }
 
+    // Charge la configuration depuis le fichier .env
     private function loadConfig(): void {
-        $env = EnvLoader::load();
+        $env = EnvLoader::load(__DIR__ . '/../config/.env');
         $this->host = $env['DB_HOST'] ?? 'localhost';
         $this->db_name = $env['DB_NAME'] ?? '';
         $this->username = $env['DB_USER'] ?? '';
@@ -23,12 +24,14 @@ class Database {
     }
 
     public function getConnection(): ?PDO {
-        try {
-            $this->conn = new PDO("mysql:host={$this->host};dbname={$this->db_name}", $this->username, $this->password);
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $exception) {
-            echo json_encode(["status" => "error", "message" => "Connection error: " . $exception->getMessage()]);
-            return null;
+        if ($this->conn === null) {
+            try {
+                $this->conn = new PDO("mysql:host={$this->host};dbname={$this->db_name};charset=utf8", $this->username, $this->password);
+                $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            } catch (PDOException $exception) {
+                echo json_encode(["status" => "error", "message" => "Connection error: " . $exception->getMessage()]);
+                return null;
+            }
         }
         return $this->conn;
     }
