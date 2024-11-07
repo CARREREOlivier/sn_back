@@ -8,9 +8,9 @@ class Database {
     private string $db_name;
     private string $username;
     private string $password;
-    private ?PDO $conn = null;
+    private static ?PDO $instance = null;
 
-    public function __construct() {
+    private function __construct() {
         $this->loadConfig();
     }
 
@@ -23,17 +23,21 @@ class Database {
         $this->password = $env['DB_PASSWORD'] ?? '';
     }
 
-    public function getConnection(): ?PDO {
-        if ($this->conn === null) {
+    // Méthode pour obtenir l'instance PDO unique
+    public static function getInstance(): PDO {
+        if (self::$instance === null) {
+            $db = new Database();
             try {
-                $this->conn = new PDO("mysql:host={$this->host};dbname={$this->db_name};charset=utf8", $this->username, $this->password);
-                $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                self::$instance = new PDO(
+                    "mysql:host={$db->host};dbname={$db->db_name};charset=utf8",
+                    $db->username,
+                    $db->password
+                );
+                self::$instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             } catch (PDOException $exception) {
-                echo json_encode(["status" => "error", "message" => "Connection error: " . $exception->getMessage()]);
-                return null;
+                die(json_encode(["status" => "error", "message" => "Connection error: " . $exception->getMessage()]));
             }
         }
-        return $this->conn;
+        return self::$instance;
     }
 }
-?>
