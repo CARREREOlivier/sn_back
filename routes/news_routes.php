@@ -32,6 +32,12 @@ elseif (preg_match('#^/news/(\d+)/delete$#', $requestUri, $matches) && $requestM
     $newsId = (int)$matches[1];
     $controller->deleteNews($newsId);
 }
+// Route pour retourner la dernière news
+elseif($requestUri ==='/news/latest' && $requestMethod === 'GET') {
+    $controller->getLatestNews();
+
+}
+
 // Route non trouvée
 else {
     echo json_encode(["status" => "error", "message" => "Route not found"]);

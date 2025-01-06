@@ -76,4 +76,25 @@ class NewsRepository extends BaseRepository
         $query = "SELECT * FROM {$this->table}";
         return $this->fetchAllRows($query);
     }
+
+    public function findLast(): ?NewsModel
+    {
+        $query = "SELECT * FROM {$this->table} ORDER BY last_update_date DESC LIMIT 1";
+        $data = $this->fetchSingleRow($query);
+
+        if ($data) {
+            return new NewsModel(
+                $data['news_id'],
+                $data['title'],
+                $data['content'],
+                $data['creation_date'],
+                $data['last_update_date'],
+                $data['author_id'],
+                (bool)$data['isVisible'] // Conversion explicite en booléen
+            );
+        }
+
+        return null;
+    }
+
 }
