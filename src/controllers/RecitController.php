@@ -44,7 +44,7 @@ class RecitController {
         }
     }
 
-     // Méthode pour créer un nouveau récit
+    // Méthode pour créer un nouveau récit
     public function createRecit(): void {
         // Récupérer les données JSON
         $data = json_decode(file_get_contents("php://input"), true);

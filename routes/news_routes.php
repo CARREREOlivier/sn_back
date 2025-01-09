@@ -23,15 +23,21 @@ elseif ($requestUri === '/news/create' && $requestMethod === 'POST') {
     $controller->createNews();
 }
 // Route pour mettre à jour une nouvelle par ID
-elseif (preg_match('#^/news/(\d+)/update$#', $requestUri, $matches) && $requestMethod === 'PUT') {
+elseif (preg_match('#^/news/edit/(\d+)$#', $requestUri, $matches) && $requestMethod === 'PUT') {
     $newsId = (int)$matches[1];
     $controller->updateNews($newsId);
 }
 // Route pour supprimer une nouvelle par ID
-elseif (preg_match('#^/news/(\d+)/delete$#', $requestUri, $matches) && $requestMethod === 'DELETE') {
+elseif (preg_match('#^/news/delete/(\d+)$#', $requestUri, $matches) && $requestMethod === 'DELETE') {
     $newsId = (int)$matches[1];
     $controller->deleteNews($newsId);
 }
+// Route pour retourner la dernière news
+elseif($requestUri ==='/news/latest' && $requestMethod === 'GET') {
+    $controller->getLatestNews();
+
+}
+
 // Route non trouvée
 else {
     echo json_encode(["status" => "error", "message" => "Route not found"]);

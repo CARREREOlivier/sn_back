@@ -1,12 +1,51 @@
 <?php
 declare(strict_types=1);
 
+use App\Models\RecitModel;
+
 require_once __DIR__ . '/BaseRepository.php';
 require_once __DIR__ . '/../models/RecitModel.php';
 
 class RecitRepository extends BaseRepository {
     protected string $table = 'recits';
     protected string $primaryKey = 'recit_id';
+
+    public function findAll(): array
+    {
+        $query = "
+        SELECT 
+            r.recit_id,
+            r.title,
+            r.description,
+            r.creation_date,
+            r.last_update_date,
+            u.username AS author
+        FROM 
+            {$this->table} r
+        LEFT JOIN 
+            users u ON r.author_id = u.user_id
+        ORDER BY 
+            r.creation_date ASC
+    ";
+
+        $rows = $this->fetchAllRows($query);
+
+        // Transformation des données en objets RecitModel
+        $recits = [];
+        foreach ($rows as $row) {
+            $recits[] = new RecitModel(
+                $row['recit_id'],
+                $row['title'],
+                $row['description'],
+                $row['author'],
+                $row['creation_date'],
+                $row['last_update_date']
+            );
+        }
+
+        return $recits;
+    }
+
 
     // Méthode pour créer un nouveau récit
     //$entity est un objet RecitModel dans ce projet

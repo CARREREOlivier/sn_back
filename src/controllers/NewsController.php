@@ -103,4 +103,23 @@ class NewsController
             http_response_code(500);
         }
     }
+
+    /**
+     * @return void
+     */
+    public function getLatestNews(): void
+    {
+        try {
+            $news = $this->newsRepository->findLast();
+            if ($news) {
+                echo json_encode($news->toArray());
+            } else {
+                echo json_encode(["status" => "error", "message" => "News not found"]);
+                http_response_code(404);
+            }
+        } catch (Exception $e) {
+            echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+            http_response_code(500);
+        }
+    }
 }
